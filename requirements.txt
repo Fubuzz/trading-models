@@ -1,0 +1,2 @@
+# Optional Python dependencies for future expansion
+# Current scripts use Python stdlib plus x-cli installed separately.

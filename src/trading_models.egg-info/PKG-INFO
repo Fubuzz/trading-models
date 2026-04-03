@@ -1,0 +1,15 @@
+Metadata-Version: 2.4
+Name: trading-models
+Version: 0.1.0
+Summary: Predictive trading toolkit for Ahmed's research workflow
+Requires-Python: >=3.11
+Description-Content-Type: text/markdown
+Requires-Dist: pandas>=2.2.2
+Requires-Dist: numpy>=1.26.4
+Requires-Dist: scikit-learn>=1.5.0
+Requires-Dist: yfinance>=0.2.54
+Requires-Dist: matplotlib>=3.9.0
+
+# trading-models
+
+Predictive trading toolkit for Ahmed's research workflow.

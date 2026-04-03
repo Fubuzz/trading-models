@@ -1,0 +1,182 @@
+{
+  "generated_at": "2026-04-03",
+  "owner": "Ahmed Abaza",
+  "purpose": "Curated high-signal X/Twitter accounts for macro, investing, energy, commodities, AI, semiconductors, and data-center research.",
+  "accounts": [
+    {
+      "category": "macro",
+      "name": "Lyn Alden",
+      "handle": "LynAldenContact",
+      "priority": 1,
+      "why_follow": "Liquidity, debt cycles, fiscal dominance, energy, and long-cycle macro regime analysis."
+    },
+    {
+      "category": "macro",
+      "name": "Joseph Wang",
+      "handle": "josephwang",
+      "priority": 2,
+      "why_follow": "Fed plumbing, reserves, Treasury issuance, and QT/QE mechanics."
+    },
+    {
+      "category": "macro",
+      "name": "Mohamed El-Erian",
+      "handle": "elerianm",
+      "priority": 3,
+      "why_follow": "Macro regime shifts, inflation, policy, and central-bank framing."
+    },
+    {
+      "category": "macro",
+      "name": "Jim Bianco",
+      "handle": "biancoresearch",
+      "priority": 4,
+      "why_follow": "Rates, inflation, bond-market signals, and cross-asset macro."
+    },
+    {
+      "category": "macro",
+      "name": "Liz Ann Sonders",
+      "handle": "LizAnnSonders",
+      "priority": 5,
+      "why_follow": "Equity strategy, breadth, sector rotation, and sentiment."
+    },
+    {
+      "category": "macro",
+      "name": "Danielle DiMartino Booth",
+      "handle": "DiMartinoBooth",
+      "priority": 6,
+      "why_follow": "Fed, labor, credit, and recession-risk analysis."
+    },
+    {
+      "category": "macro",
+      "name": "Claudia Sahm",
+      "handle": "Claudia_Sahm",
+      "priority": 7,
+      "why_follow": "Labor-market data and recession diagnostics."
+    },
+    {
+      "category": "macro",
+      "name": "Brent Donnelly",
+      "handle": "donnelly_brent",
+      "priority": 8,
+      "why_follow": "FX, tactical macro trading, and positioning."
+    },
+    {
+      "category": "macro",
+      "name": "Dario Perkins",
+      "handle": "darioperkins",
+      "priority": 9,
+      "why_follow": "Global macro and policy second-order effects."
+    },
+    {
+      "category": "macro",
+      "name": "The Daily Shot",
+      "handle": "SoberLook",
+      "priority": 10,
+      "why_follow": "Chart-heavy macro dashboard and market internals."
+    },
+    {
+      "category": "investing",
+      "name": "Ian Cassel",
+      "handle": "iancassel",
+      "priority": 11,
+      "why_follow": "Concentrated investing and asymmetric small/mid-cap setups."
+    },
+    {
+      "category": "investing",
+      "name": "Aswath Damodaran",
+      "handle": "AswathDamodaran",
+      "priority": 12,
+      "why_follow": "Valuation discipline and capital-allocation thinking."
+    },
+    {
+      "category": "investing",
+      "name": "Mark Minervini",
+      "handle": "markminervini",
+      "priority": 13,
+      "why_follow": "Momentum, trend quality, and entry/exit discipline."
+    },
+    {
+      "category": "investing",
+      "name": "Gavin Baker",
+      "handle": "GavinSBaker",
+      "priority": 14,
+      "why_follow": "Crossover growth, AI, and public/private tech investing."
+    },
+    {
+      "category": "investing",
+      "name": "Chris Mayer",
+      "handle": "chriswmayer",
+      "priority": 15,
+      "why_follow": "Quality compounders and long-duration business quality."
+    },
+    {
+      "category": "energy_commodities",
+      "name": "Javier Blas",
+      "handle": "JavierBlas",
+      "priority": 16,
+      "why_follow": "Commodities, geopolitics, metals, and energy-market structure."
+    },
+    {
+      "category": "energy_commodities",
+      "name": "Rory Johnston",
+      "handle": "Rory_Johnston",
+      "priority": 17,
+      "why_follow": "Oil supply-demand and crude-market nuance."
+    },
+    {
+      "category": "energy_commodities",
+      "name": "Anas Alhajji",
+      "handle": "anasalhajji",
+      "priority": 18,
+      "why_follow": "OPEC, global oil, and energy-market structure."
+    },
+    {
+      "category": "energy_commodities",
+      "name": "Doomberg",
+      "handle": "DoombergT",
+      "priority": 19,
+      "why_follow": "Energy, power demand, industrial policy, and nuclear themes."
+    },
+    {
+      "category": "energy_commodities",
+      "name": "Otavio Costa",
+      "handle": "TaviCosta",
+      "priority": 20,
+      "why_follow": "Commodities, miners, real assets, and macro regime shifts."
+    },
+    {
+      "category": "ai_semis",
+      "name": "Dylan Patel",
+      "handle": "dylan522p",
+      "priority": 21,
+      "why_follow": "AI compute, semis, foundries, supply chains, and hyperscaler capex."
+    },
+    {
+      "category": "ai_semis",
+      "name": "Patrick Moorhead",
+      "handle": "PatrickMoorhead",
+      "priority": 22,
+      "why_follow": "Enterprise tech, chips, AI infrastructure, and product cycles."
+    },
+    {
+      "category": "ai_semis",
+      "name": "Ben Bajarin",
+      "handle": "BenBajarin",
+      "priority": 23,
+      "why_follow": "Tech strategy, semis, and demand-quality analysis."
+    },
+    {
+      "category": "ai_semis",
+      "name": "Ed Ludlow",
+      "handle": "EdLudlow",
+      "priority": 24,
+      "why_follow": "Fast-moving news flow on AI, semis, Big Tech, and capex."
+    },
+    {
+      "category": "ai_semis",
+      "name": "The Transcript",
+      "handle": "TheTranscript_",
+      "priority": 25,
+      "why_follow": "Earnings-call and management-commentary excerpts for fast context."
+    }
+  ]
+}
