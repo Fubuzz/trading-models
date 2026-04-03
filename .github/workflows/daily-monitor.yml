@@ -1,0 +1,54 @@
+name: Daily Monitor
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '30 12 * * 1-5'
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Install x-cli
+        run: uv tool install git+https://github.com/Infatoshi/x-cli.git
+
+      - name: Configure x-cli env
+        run: |
+          mkdir -p ~/.config/x-cli
+          cat > ~/.config/x-cli/.env <<EOF
+          X_API_KEY=${{ secrets.X_API_KEY }}
+          X_API_SECRET=${{ secrets.X_API_SECRET }}
+          X_BEARER_TOKEN=${{ secrets.X_BEARER_TOKEN }}
+          X_ACCESS_TOKEN=${{ secrets.X_ACCESS_TOKEN }}
+          X_ACCESS_TOKEN_SECRET=${{ secrets.X_ACCESS_TOKEN_SECRET }}
+          EOF
+          chmod 600 ~/.config/x-cli/.env
+
+      - name: Run watchlist fetchers
+        env:
+          ALPHA_VANTAGE_API_KEY: ${{ secrets.ALPHA_VANTAGE_API_KEY }}
+        run: |
+          python3 scripts/fetch_x_watchlist.py
+          python3 scripts/fetch_alpha_watchlist.py
+          python3 scripts/build_daily_brief.py
+          cat reports/daily_brief.txt
+
+      - name: Upload report artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: daily-brief
+          path: |
+            reports/daily_brief.txt
+            data/x/latest.json
+            data/alpha_vantage/latest.json
