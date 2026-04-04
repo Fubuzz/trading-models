@@ -32,11 +32,16 @@ Python 3 and `x-cli` are required.
 
 ## Usage
 
+For reproducible runs, use the project-managed `uv` environment rather than the ambient shell Python.
+
 ```bash
-python3 scripts/fetch_x_watchlist.py
-python3 scripts/fetch_alpha_watchlist.py
-python3 scripts/build_daily_brief.py
+uv run python scripts/fetch_x_watchlist.py
+uv run python scripts/fetch_alpha_watchlist.py
+uv run python scripts/build_daily_brief.py
 cat reports/daily_brief.txt
+
+uv run python scripts/run_baseline.py
+uv run --with pytest python -m pytest tests -q
 ```
 
 ## Notes

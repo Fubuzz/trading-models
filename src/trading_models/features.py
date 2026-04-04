@@ -8,8 +8,18 @@ def compute_rsi(series: pd.Series, period: int = 14) -> pd.Series:
     delta = series.diff()
     gain = delta.clip(lower=0).rolling(period).mean()
     loss = (-delta.clip(upper=0)).rolling(period).mean()
+
     rs = gain / loss.replace(0, np.nan)
-    return 100 - (100 / (1 + rs))
+    rsi = 100 - (100 / (1 + rs))
+
+    no_losses = loss.eq(0) & gain.gt(0)
+    no_gains = gain.eq(0) & loss.gt(0)
+    flat_window = gain.eq(0) & loss.eq(0)
+
+    rsi = rsi.mask(no_losses, 100.0)
+    rsi = rsi.mask(no_gains, 0.0)
+    rsi = rsi.mask(flat_window, 50.0)
+    return rsi
 
 
 def add_features(df: pd.DataFrame) -> pd.DataFrame:
