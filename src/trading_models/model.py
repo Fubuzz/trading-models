@@ -32,10 +32,18 @@ class ModelResult:
 
 
 
+def prepare_feature_frame(df: pd.DataFrame) -> pd.DataFrame:
+    feature_frame = add_features(df)
+    return feature_frame.dropna(subset=FEATURE_COLUMNS).reset_index(drop=True)
+
+
+
 def prepare_dataset(df: pd.DataFrame) -> pd.DataFrame:
-    out = add_features(df)
-    out["target"] = (out["Close"].shift(-FORWARD_DAYS) > out["Close"]).astype(int)
-    return out.dropna().reset_index(drop=True)
+    feature_frame = prepare_feature_frame(df)
+    future_close = feature_frame["Close"].shift(-FORWARD_DAYS)
+    labeled = feature_frame.loc[future_close.notna()].copy()
+    labeled["target"] = (future_close.loc[future_close.notna()] > labeled["Close"]).astype(int).to_numpy()
+    return labeled.reset_index(drop=True)
 
 
 
@@ -47,7 +55,9 @@ def compute_classification_metrics(y_true: pd.Series, y_pred: pd.Series) -> dict
 
 
 def train_for_ticker(ticker: str, df: pd.DataFrame) -> ModelResult:
+    feature_frame = prepare_feature_frame(df)
     ds = prepare_dataset(df)
+
     split_idx = max(20, int(len(ds) * TRAIN_TEST_SPLIT))
     train = ds.iloc[:split_idx]
     test = ds.iloc[split_idx:]
@@ -68,7 +78,7 @@ def train_for_ticker(ticker: str, df: pd.DataFrame) -> ModelResult:
     metrics = compute_classification_metrics(y_test, preds)
     report = classification_report(y_test, preds, digits=3)
 
-    latest_features = ds[FEATURE_COLUMNS].iloc[[-1]]
+    latest_features = feature_frame[FEATURE_COLUMNS].tail(1)
     latest_signal = int(model.predict(latest_features)[0])
     latest_probability_up = float(model.predict_proba(latest_features)[0][1])
 
