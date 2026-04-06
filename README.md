@@ -49,4 +49,5 @@ uv run --with pytest python -m pytest tests -q
 - Current `x-cli` supports timeline/search/bookmark/like/retweet/post flows, but not follow/unfollow or list management.
 - For persistent monitoring, this repo stores a curated account list and polls their timelines.
 - The baseline model now excludes the final `FORWARD_DAYS` rows from supervised evaluation so backtest labels only use observations with a known forward close; live inference still scores the freshest feature row.
+- Baseline outputs now rank names by a simple conviction score (`balanced_accuracy * abs(prob_up - 0.5)`) so extreme live probabilities from historically weak models do not dominate the watchlist.
 - This is a starter pipeline and should be extended with scoring, deduplication, sentiment, and portfolio relevance ranking.
