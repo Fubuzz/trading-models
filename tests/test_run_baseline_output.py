@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
 import pandas as pd
+import pytest
 
 import scripts.run_baseline as run_baseline
 
@@ -19,6 +20,34 @@ STUB_RESULTS = {
     "BOTZ": StubResult(accuracy=0.58, balanced_accuracy=0.63, latest_signal=0, latest_probability_up=0.20),
     "COPX": StubResult(accuracy=0.67, balanced_accuracy=0.68, latest_signal=1, latest_probability_up=0.54),
 }
+
+
+def test_build_results_frame_adds_signal_confidence_from_predicted_side():
+    results = run_baseline.build_results_frame(
+        [
+            {
+                "ticker": "BUYME",
+                "accuracy": 0.55,
+                "balanced_accuracy": 0.60,
+                "signal": "BUY",
+                "prob_up": 0.70,
+            },
+            {
+                "ticker": "SELLME",
+                "accuracy": 0.58,
+                "balanced_accuracy": 0.62,
+                "signal": "SELL",
+                "prob_up": 0.20,
+            },
+        ]
+    )
+
+    by_ticker = results.set_index("ticker")
+
+    assert by_ticker.loc["BUYME", "signal_confidence"] == pytest.approx(0.70)
+    assert by_ticker.loc["BUYME", "signal_edge"] == pytest.approx(0.20)
+    assert by_ticker.loc["SELLME", "signal_confidence"] == pytest.approx(0.80)
+    assert by_ticker.loc["SELLME", "signal_edge"] == pytest.approx(0.30)
 
 
 def test_baseline_results_include_ranked_conviction_columns_and_highlights(monkeypatch, tmp_path):
@@ -42,7 +71,7 @@ def test_baseline_results_include_ranked_conviction_columns_and_highlights(monke
     results = (reports_dir / "RESULTS.md").read_text()
     latest_predictions = pd.read_csv(reports_dir / "latest_predictions.csv")
 
-    assert "| Ticker | Accuracy | Balanced Accuracy | Signal | Prob Up |" in results
+    assert "| Ticker | Accuracy | Balanced Accuracy | Signal | Prob Up | Signal Confidence |" in results
     assert "## Highlights" in results
     assert "Best conviction-adjusted signal: **BOTZ**" in results
     assert latest_predictions.columns.tolist() == [
@@ -51,9 +80,11 @@ def test_baseline_results_include_ranked_conviction_columns_and_highlights(monke
         "balanced_accuracy",
         "signal",
         "prob_up",
-        "probability_edge",
+        "signal_confidence",
+        "signal_edge",
         "conviction_score",
     ]
     assert latest_predictions["ticker"].tolist() == ["BOTZ", "SPY", "COPX"]
     assert latest_predictions.loc[0, "conviction_score"] > latest_predictions.loc[1, "conviction_score"]
+    assert latest_predictions.loc[0, "signal_confidence"] == 0.8
     assert results.index("| BOTZ |") < results.index("| SPY |") < results.index("| COPX |")

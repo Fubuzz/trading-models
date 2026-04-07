@@ -22,10 +22,13 @@ def build_results_frame(rows: list[dict[str, float | str]]) -> pd.DataFrame:
     if results.empty:
         return results
 
-    results["probability_edge"] = (results["prob_up"] - 0.5).abs()
-    results["conviction_score"] = results["balanced_accuracy"] * results["probability_edge"]
+    results["signal_confidence"] = results["prob_up"]
+    sell_mask = results["signal"].eq("SELL")
+    results.loc[sell_mask, "signal_confidence"] = 1 - results.loc[sell_mask, "prob_up"]
+    results["signal_edge"] = results["signal_confidence"] - 0.5
+    results["conviction_score"] = results["balanced_accuracy"] * results["signal_edge"]
     return results.sort_values(
-        ["conviction_score", "balanced_accuracy", "probability_edge", "accuracy"],
+        ["conviction_score", "balanced_accuracy", "signal_confidence", "accuracy"],
         ascending=False,
     ).reset_index(drop=True)
 
@@ -56,7 +59,8 @@ def render_results_markdown(results: pd.DataFrame) -> str:
                 ),
                 (
                     f"- Best conviction-adjusted signal: **{best_conviction['ticker']}** "
-                    f"(conviction score {best_conviction['conviction_score']:.3f}, signal {best_conviction['signal']})."
+                    f"(conviction score {best_conviction['conviction_score']:.3f}, "
+                    f"signal {best_conviction['signal']}, confidence {best_conviction['signal_confidence']:.3f})."
                 ),
                 "",
             ]
@@ -64,13 +68,13 @@ def render_results_markdown(results: pd.DataFrame) -> str:
 
     md_lines.extend(
         [
-            "| Ticker | Accuracy | Balanced Accuracy | Signal | Prob Up |",
-            "|---|---:|---:|---|---:|",
+            "| Ticker | Accuracy | Balanced Accuracy | Signal | Prob Up | Signal Confidence |",
+            "|---|---:|---:|---|---:|---:|",
         ]
     )
     for row in results.itertuples(index=False):
         md_lines.append(
-            f"| {row.ticker} | {row.accuracy:.3f} | {row.balanced_accuracy:.3f} | {row.signal} | {row.prob_up:.3f} |"
+            f"| {row.ticker} | {row.accuracy:.3f} | {row.balanced_accuracy:.3f} | {row.signal} | {row.prob_up:.3f} | {row.signal_confidence:.3f} |"
         )
     return "\n".join(md_lines) + "\n"
 
