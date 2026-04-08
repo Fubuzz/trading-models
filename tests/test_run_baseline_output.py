@@ -71,8 +71,12 @@ def test_baseline_results_include_ranked_conviction_columns_and_highlights(monke
     results = (reports_dir / "RESULTS.md").read_text()
     latest_predictions = pd.read_csv(reports_dir / "latest_predictions.csv")
 
-    assert "| Ticker | Accuracy | Balanced Accuracy | Signal | Prob Up | Signal Confidence |" in results
+    assert (
+        "| Ticker | Accuracy | Balanced Accuracy | Signal | Prob Up | Signal Confidence | Conviction Score |"
+        in results
+    )
     assert "## Highlights" in results
+    assert "Highest downside probability: **BOTZ**" in results
     assert "Best conviction-adjusted signal: **BOTZ**" in results
     assert latest_predictions.columns.tolist() == [
         "ticker",

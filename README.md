@@ -50,5 +50,5 @@ uv run --with pytest python -m pytest tests -q
 - For persistent monitoring, this repo stores a curated account list and polls their timelines.
 - The baseline model now excludes the final `FORWARD_DAYS` rows from supervised evaluation so backtest labels only use observations with a known forward close; live inference still scores the freshest feature row.
 - Baseline outputs now rank names by a simple conviction score (`balanced_accuracy * signal_edge`), where `signal_edge` measures confidence in the predicted side (`prob_up` for BUY signals, `1 - prob_up` for SELL signals), so extreme live probabilities from historically weak models do not dominate the watchlist.
-- `reports/latest_predictions.csv` and `reports/RESULTS.md` now include `signal_confidence` to make SELL calls easier to interpret without mentally inverting `prob_up`.
+- `reports/latest_predictions.csv` and `reports/RESULTS.md` now include `signal_confidence` to make SELL calls easier to interpret without mentally inverting `prob_up`; the markdown report also surfaces the conviction score used for ranking and calls out the highest downside-probability SELL setup.
 - This is a starter pipeline and should be extended with scoring, deduplication, sentiment, and portfolio relevance ranking.
