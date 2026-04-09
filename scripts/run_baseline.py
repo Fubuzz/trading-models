@@ -14,7 +14,15 @@ REPORTS_DIR = ROOT / "reports"
 MODELS_DIR = ROOT / "models"
 
 
-RESULTS_COLUMNS = ["ticker", "accuracy", "balanced_accuracy", "signal", "prob_up"]
+RESULTS_COLUMNS = [
+    "ticker",
+    "train_rows",
+    "test_rows",
+    "accuracy",
+    "balanced_accuracy",
+    "signal",
+    "prob_up",
+]
 
 
 def build_results_frame(rows: list[dict[str, float | str]]) -> pd.DataFrame:
@@ -82,13 +90,13 @@ def render_results_markdown(results: pd.DataFrame) -> str:
 
     md_lines.extend(
         [
-            "| Ticker | Accuracy | Balanced Accuracy | Signal | Prob Up | Signal Confidence | Conviction Score |",
-            "|---|---:|---:|---|---:|---:|---:|",
+            "| Ticker | Train Rows | Test Rows | Accuracy | Balanced Accuracy | Signal | Prob Up | Signal Confidence | Conviction Score |",
+            "|---|---:|---:|---:|---:|---|---:|---:|---:|",
         ]
     )
     for row in results.itertuples(index=False):
         md_lines.append(
-            f"| {row.ticker} | {row.accuracy:.3f} | {row.balanced_accuracy:.3f} | {row.signal} | {row.prob_up:.3f} | {row.signal_confidence:.3f} | {row.conviction_score:.3f} |"
+            f"| {row.ticker} | {row.train_rows} | {row.test_rows} | {row.accuracy:.3f} | {row.balanced_accuracy:.3f} | {row.signal} | {row.prob_up:.3f} | {row.signal_confidence:.3f} | {row.conviction_score:.3f} |"
         )
     return "\n".join(md_lines) + "\n"
 
@@ -107,6 +115,8 @@ def main() -> None:
         rows.append(
             {
                 "ticker": ticker,
+                "train_rows": result.train_rows,
+                "test_rows": result.test_rows,
                 "accuracy": result.accuracy,
                 "balanced_accuracy": result.balanced_accuracy,
                 "signal": signal,

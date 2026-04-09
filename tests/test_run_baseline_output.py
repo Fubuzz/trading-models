@@ -12,13 +12,36 @@ class StubResult:
     balanced_accuracy: float
     latest_signal: int
     latest_probability_up: float
+    train_rows: int
+    test_rows: int
     report: str = "stub report"
 
 
 STUB_RESULTS = {
-    "SPY": StubResult(accuracy=0.61, balanced_accuracy=0.55, latest_signal=1, latest_probability_up=0.70),
-    "BOTZ": StubResult(accuracy=0.58, balanced_accuracy=0.63, latest_signal=0, latest_probability_up=0.20),
-    "COPX": StubResult(accuracy=0.67, balanced_accuracy=0.68, latest_signal=1, latest_probability_up=0.54),
+    "SPY": StubResult(
+        accuracy=0.61,
+        balanced_accuracy=0.55,
+        latest_signal=1,
+        latest_probability_up=0.70,
+        train_rows=96,
+        test_rows=24,
+    ),
+    "BOTZ": StubResult(
+        accuracy=0.58,
+        balanced_accuracy=0.63,
+        latest_signal=0,
+        latest_probability_up=0.20,
+        train_rows=80,
+        test_rows=20,
+    ),
+    "COPX": StubResult(
+        accuracy=0.67,
+        balanced_accuracy=0.68,
+        latest_signal=1,
+        latest_probability_up=0.54,
+        train_rows=72,
+        test_rows=18,
+    ),
 }
 
 
@@ -72,7 +95,7 @@ def test_baseline_results_include_ranked_conviction_columns_and_highlights(monke
     latest_predictions = pd.read_csv(reports_dir / "latest_predictions.csv")
 
     assert (
-        "| Ticker | Accuracy | Balanced Accuracy | Signal | Prob Up | Signal Confidence | Conviction Score |"
+        "| Ticker | Train Rows | Test Rows | Accuracy | Balanced Accuracy | Signal | Prob Up | Signal Confidence | Conviction Score |"
         in results
     )
     assert "## Highlights" in results
@@ -80,6 +103,8 @@ def test_baseline_results_include_ranked_conviction_columns_and_highlights(monke
     assert "Best conviction-adjusted signal: **BOTZ**" in results
     assert latest_predictions.columns.tolist() == [
         "ticker",
+        "train_rows",
+        "test_rows",
         "accuracy",
         "balanced_accuracy",
         "signal",
@@ -91,4 +116,7 @@ def test_baseline_results_include_ranked_conviction_columns_and_highlights(monke
     assert latest_predictions["ticker"].tolist() == ["BOTZ", "SPY", "COPX"]
     assert latest_predictions.loc[0, "conviction_score"] > latest_predictions.loc[1, "conviction_score"]
     assert latest_predictions.loc[0, "signal_confidence"] == 0.8
+    assert latest_predictions.loc[0, "train_rows"] == 80
+    assert latest_predictions.loc[0, "test_rows"] == 20
+    assert "| BOTZ | 80 | 20 | 0.580 | 0.630 | SELL | 0.200 | 0.800 | 0.189 |" in results
     assert results.index("| BOTZ |") < results.index("| SPY |") < results.index("| COPX |")

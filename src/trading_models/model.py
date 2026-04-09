@@ -29,6 +29,8 @@ class ModelResult:
     report: str
     latest_signal: int
     latest_probability_up: float
+    train_rows: int
+    test_rows: int
 
 
 
@@ -89,4 +91,6 @@ def train_for_ticker(ticker: str, df: pd.DataFrame) -> ModelResult:
         report=report,
         latest_signal=latest_signal,
         latest_probability_up=latest_probability_up,
+        train_rows=len(train),
+        test_rows=len(test),
     )
