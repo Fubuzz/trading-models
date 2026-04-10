@@ -43,7 +43,8 @@ def test_prepare_feature_frame_keeps_latest_row_for_live_inference():
 
 def test_train_for_ticker_reports_train_and_test_row_counts():
     close = 100 + np.sin(np.arange(160) / 4) * 5 + np.arange(160) * 0.1
-    df = pd.DataFrame({"Close": close})
+    dates = pd.date_range("2024-01-01", periods=len(close), freq="D", tz="UTC")
+    df = pd.DataFrame({"Date": dates, "Close": close})
 
     dataset = prepare_dataset(df)
     result = train_for_ticker("SYNTH", df)
@@ -51,3 +52,5 @@ def test_train_for_ticker_reports_train_and_test_row_counts():
     assert result.train_rows + result.test_rows == len(dataset)
     assert result.train_rows >= 20
     assert result.test_rows > 0
+    assert result.latest_close == close[-1]
+    assert result.latest_date == dates[-1].date().isoformat()

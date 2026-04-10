@@ -12,6 +12,8 @@ class StubResult:
     balanced_accuracy: float
     latest_signal: int
     latest_probability_up: float
+    latest_close: float
+    latest_date: str
     train_rows: int
     test_rows: int
     report: str = "stub report"
@@ -23,6 +25,8 @@ STUB_RESULTS = {
         balanced_accuracy=0.55,
         latest_signal=1,
         latest_probability_up=0.70,
+        latest_close=500.25,
+        latest_date="2026-04-08",
         train_rows=96,
         test_rows=24,
     ),
@@ -31,6 +35,8 @@ STUB_RESULTS = {
         balanced_accuracy=0.63,
         latest_signal=0,
         latest_probability_up=0.20,
+        latest_close=31.75,
+        latest_date="2026-04-08",
         train_rows=80,
         test_rows=20,
     ),
@@ -39,6 +45,8 @@ STUB_RESULTS = {
         balanced_accuracy=0.68,
         latest_signal=1,
         latest_probability_up=0.54,
+        latest_close=42.10,
+        latest_date="2026-04-08",
         train_rows=72,
         test_rows=18,
     ),
@@ -50,6 +58,8 @@ def test_build_results_frame_adds_signal_confidence_from_predicted_side():
         [
             {
                 "ticker": "BUYME",
+                "latest_date": "2026-04-08",
+                "latest_close": 100.5,
                 "accuracy": 0.55,
                 "balanced_accuracy": 0.60,
                 "signal": "BUY",
@@ -57,6 +67,8 @@ def test_build_results_frame_adds_signal_confidence_from_predicted_side():
             },
             {
                 "ticker": "SELLME",
+                "latest_date": "2026-04-08",
+                "latest_close": 88.25,
                 "accuracy": 0.58,
                 "balanced_accuracy": 0.62,
                 "signal": "SELL",
@@ -95,7 +107,7 @@ def test_baseline_results_include_ranked_conviction_columns_and_highlights(monke
     latest_predictions = pd.read_csv(reports_dir / "latest_predictions.csv")
 
     assert (
-        "| Ticker | Train Rows | Test Rows | Accuracy | Balanced Accuracy | Signal | Prob Up | Signal Confidence | Conviction Score |"
+        "| Ticker | As Of | Last Close | Train Rows | Test Rows | Accuracy | Balanced Accuracy | Signal | Prob Up | Signal Confidence | Conviction Score |"
         in results
     )
     assert "## Highlights" in results
@@ -103,6 +115,8 @@ def test_baseline_results_include_ranked_conviction_columns_and_highlights(monke
     assert "Best conviction-adjusted signal: **BOTZ**" in results
     assert latest_predictions.columns.tolist() == [
         "ticker",
+        "latest_date",
+        "latest_close",
         "train_rows",
         "test_rows",
         "accuracy",
@@ -116,7 +130,9 @@ def test_baseline_results_include_ranked_conviction_columns_and_highlights(monke
     assert latest_predictions["ticker"].tolist() == ["BOTZ", "SPY", "COPX"]
     assert latest_predictions.loc[0, "conviction_score"] > latest_predictions.loc[1, "conviction_score"]
     assert latest_predictions.loc[0, "signal_confidence"] == 0.8
+    assert latest_predictions.loc[0, "latest_date"] == "2026-04-08"
+    assert latest_predictions.loc[0, "latest_close"] == pytest.approx(31.75)
     assert latest_predictions.loc[0, "train_rows"] == 80
     assert latest_predictions.loc[0, "test_rows"] == 20
-    assert "| BOTZ | 80 | 20 | 0.580 | 0.630 | SELL | 0.200 | 0.800 | 0.189 |" in results
+    assert "| BOTZ | 2026-04-08 | 31.75 | 80 | 20 | 0.580 | 0.630 | SELL | 0.200 | 0.800 | 0.189 |" in results
     assert results.index("| BOTZ |") < results.index("| SPY |") < results.index("| COPX |")

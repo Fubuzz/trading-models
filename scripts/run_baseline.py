@@ -16,6 +16,8 @@ MODELS_DIR = ROOT / "models"
 
 RESULTS_COLUMNS = [
     "ticker",
+    "latest_date",
+    "latest_close",
     "train_rows",
     "test_rows",
     "accuracy",
@@ -90,13 +92,13 @@ def render_results_markdown(results: pd.DataFrame) -> str:
 
     md_lines.extend(
         [
-            "| Ticker | Train Rows | Test Rows | Accuracy | Balanced Accuracy | Signal | Prob Up | Signal Confidence | Conviction Score |",
-            "|---|---:|---:|---:|---:|---|---:|---:|---:|",
+            "| Ticker | As Of | Last Close | Train Rows | Test Rows | Accuracy | Balanced Accuracy | Signal | Prob Up | Signal Confidence | Conviction Score |",
+            "|---|---|---:|---:|---:|---:|---:|---|---:|---:|---:|",
         ]
     )
     for row in results.itertuples(index=False):
         md_lines.append(
-            f"| {row.ticker} | {row.train_rows} | {row.test_rows} | {row.accuracy:.3f} | {row.balanced_accuracy:.3f} | {row.signal} | {row.prob_up:.3f} | {row.signal_confidence:.3f} | {row.conviction_score:.3f} |"
+            f"| {row.ticker} | {row.latest_date} | {row.latest_close:.2f} | {row.train_rows} | {row.test_rows} | {row.accuracy:.3f} | {row.balanced_accuracy:.3f} | {row.signal} | {row.prob_up:.3f} | {row.signal_confidence:.3f} | {row.conviction_score:.3f} |"
         )
     return "\n".join(md_lines) + "\n"
 
@@ -115,6 +117,8 @@ def main() -> None:
         rows.append(
             {
                 "ticker": ticker,
+                "latest_date": result.latest_date,
+                "latest_close": result.latest_close,
                 "train_rows": result.train_rows,
                 "test_rows": result.test_rows,
                 "accuracy": result.accuracy,

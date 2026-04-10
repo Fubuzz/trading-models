@@ -29,8 +29,21 @@ class ModelResult:
     report: str
     latest_signal: int
     latest_probability_up: float
+    latest_close: float
+    latest_date: str
     train_rows: int
     test_rows: int
+
+
+
+def format_latest_date(latest_row: pd.Series) -> str:
+    if "Date" not in latest_row.index:
+        return "N/A"
+
+    latest_date = pd.to_datetime(latest_row["Date"])
+    if pd.isna(latest_date):
+        return "N/A"
+    return latest_date.date().isoformat()
 
 
 
@@ -80,9 +93,12 @@ def train_for_ticker(ticker: str, df: pd.DataFrame) -> ModelResult:
     metrics = compute_classification_metrics(y_test, preds)
     report = classification_report(y_test, preds, digits=3)
 
+    latest_row = feature_frame.iloc[-1]
     latest_features = feature_frame[FEATURE_COLUMNS].tail(1)
     latest_signal = int(model.predict(latest_features)[0])
     latest_probability_up = float(model.predict_proba(latest_features)[0][1])
+    latest_close = float(latest_row["Close"])
+    latest_date = format_latest_date(latest_row)
 
     return ModelResult(
         ticker=ticker,
@@ -91,6 +107,8 @@ def train_for_ticker(ticker: str, df: pd.DataFrame) -> ModelResult:
         report=report,
         latest_signal=latest_signal,
         latest_probability_up=latest_probability_up,
+        latest_close=latest_close,
+        latest_date=latest_date,
         train_rows=len(train),
         test_rows=len(test),
     )
