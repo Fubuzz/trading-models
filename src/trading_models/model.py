@@ -33,6 +33,8 @@ class ModelResult:
     latest_date: str
     train_rows: int
     test_rows: int
+    train_positive_rate: float
+    test_positive_rate: float
 
 
 
@@ -67,6 +69,10 @@ def compute_classification_metrics(y_true: pd.Series, y_pred: pd.Series) -> dict
         "accuracy": float(accuracy_score(y_true, y_pred)),
         "balanced_accuracy": float(balanced_accuracy_score(y_true, y_pred)),
     }
+
+
+def compute_positive_rate(labels: pd.Series) -> float:
+    return float(labels.mean()) if len(labels) else 0.0
 
 
 def train_for_ticker(ticker: str, df: pd.DataFrame) -> ModelResult:
@@ -111,4 +117,6 @@ def train_for_ticker(ticker: str, df: pd.DataFrame) -> ModelResult:
         latest_date=latest_date,
         train_rows=len(train),
         test_rows=len(test),
+        train_positive_rate=compute_positive_rate(y_train),
+        test_positive_rate=compute_positive_rate(y_test),
     )

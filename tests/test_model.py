@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-from trading_models.config import FORWARD_DAYS
+from trading_models.config import FORWARD_DAYS, TRAIN_TEST_SPLIT
 from trading_models.model import (
     compute_classification_metrics,
     prepare_dataset,
@@ -48,9 +48,12 @@ def test_train_for_ticker_reports_train_and_test_row_counts():
 
     dataset = prepare_dataset(df)
     result = train_for_ticker("SYNTH", df)
+    split_idx = max(20, int(len(dataset) * TRAIN_TEST_SPLIT))
 
     assert result.train_rows + result.test_rows == len(dataset)
     assert result.train_rows >= 20
     assert result.test_rows > 0
+    assert result.train_positive_rate == dataset["target"].iloc[:split_idx].mean()
+    assert result.test_positive_rate == dataset["target"].iloc[split_idx:].mean()
     assert result.latest_close == close[-1]
     assert result.latest_date == dates[-1].date().isoformat()

@@ -16,6 +16,8 @@ class StubResult:
     latest_date: str
     train_rows: int
     test_rows: int
+    train_positive_rate: float
+    test_positive_rate: float
     report: str = "stub report"
 
 
@@ -29,6 +31,8 @@ STUB_RESULTS = {
         latest_date="2026-04-08",
         train_rows=96,
         test_rows=24,
+        train_positive_rate=0.55,
+        test_positive_rate=0.50,
     ),
     "BOTZ": StubResult(
         accuracy=0.58,
@@ -39,6 +43,8 @@ STUB_RESULTS = {
         latest_date="2026-04-08",
         train_rows=80,
         test_rows=20,
+        train_positive_rate=0.40,
+        test_positive_rate=0.35,
     ),
     "COPX": StubResult(
         accuracy=0.67,
@@ -49,6 +55,8 @@ STUB_RESULTS = {
         latest_date="2026-04-08",
         train_rows=72,
         test_rows=18,
+        train_positive_rate=0.62,
+        test_positive_rate=0.56,
     ),
 }
 
@@ -60,6 +68,10 @@ def test_build_results_frame_adds_signal_confidence_from_predicted_side():
                 "ticker": "BUYME",
                 "latest_date": "2026-04-08",
                 "latest_close": 100.5,
+                "train_rows": 50,
+                "test_rows": 12,
+                "train_positive_rate": 0.64,
+                "test_positive_rate": 0.58,
                 "accuracy": 0.55,
                 "balanced_accuracy": 0.60,
                 "signal": "BUY",
@@ -69,6 +81,10 @@ def test_build_results_frame_adds_signal_confidence_from_predicted_side():
                 "ticker": "SELLME",
                 "latest_date": "2026-04-08",
                 "latest_close": 88.25,
+                "train_rows": 48,
+                "test_rows": 10,
+                "train_positive_rate": 0.42,
+                "test_positive_rate": 0.30,
                 "accuracy": 0.58,
                 "balanced_accuracy": 0.62,
                 "signal": "SELL",
@@ -107,10 +123,11 @@ def test_baseline_results_include_ranked_conviction_columns_and_highlights(monke
     latest_predictions = pd.read_csv(reports_dir / "latest_predictions.csv")
 
     assert (
-        "| Ticker | As Of | Last Close | Train Rows | Test Rows | Accuracy | Balanced Accuracy | Signal | Prob Up | Signal Confidence | Conviction Score |"
+        "| Ticker | As Of | Last Close | Train Rows | Test Rows | Train Up Rate | Test Up Rate | Accuracy | Balanced Accuracy | Signal | Prob Up | Signal Confidence | Conviction Score |"
         in results
     )
     assert "## Highlights" in results
+    assert "Most upside-heavy test window: **COPX**" in results
     assert "Highest downside probability: **BOTZ**" in results
     assert "Best conviction-adjusted signal: **BOTZ**" in results
     assert latest_predictions.columns.tolist() == [
@@ -119,6 +136,8 @@ def test_baseline_results_include_ranked_conviction_columns_and_highlights(monke
         "latest_close",
         "train_rows",
         "test_rows",
+        "train_positive_rate",
+        "test_positive_rate",
         "accuracy",
         "balanced_accuracy",
         "signal",
@@ -134,5 +153,7 @@ def test_baseline_results_include_ranked_conviction_columns_and_highlights(monke
     assert latest_predictions.loc[0, "latest_close"] == pytest.approx(31.75)
     assert latest_predictions.loc[0, "train_rows"] == 80
     assert latest_predictions.loc[0, "test_rows"] == 20
-    assert "| BOTZ | 2026-04-08 | 31.75 | 80 | 20 | 0.580 | 0.630 | SELL | 0.200 | 0.800 | 0.189 |" in results
+    assert latest_predictions.loc[0, "train_positive_rate"] == pytest.approx(0.40)
+    assert latest_predictions.loc[0, "test_positive_rate"] == pytest.approx(0.35)
+    assert "| BOTZ | 2026-04-08 | 31.75 | 80 | 20 | 0.400 | 0.350 | 0.580 | 0.630 | SELL | 0.200 | 0.800 | 0.189 |" in results
     assert results.index("| BOTZ |") < results.index("| SPY |") < results.index("| COPX |")
