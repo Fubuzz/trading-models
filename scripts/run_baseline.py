@@ -34,6 +34,7 @@ def build_results_frame(rows: list[dict[str, float | str]]) -> pd.DataFrame:
     if results.empty:
         return results
 
+    results["up_rate_delta"] = results["test_positive_rate"] - results["train_positive_rate"]
     results["signal_confidence"] = results["prob_up"]
     sell_mask = results["signal"].eq("SELL")
     results.loc[sell_mask, "signal_confidence"] = 1 - results.loc[sell_mask, "prob_up"]
@@ -57,6 +58,8 @@ def render_results_markdown(results: pd.DataFrame) -> str:
         strongest_fit = results.sort_values(["balanced_accuracy", "accuracy"], ascending=False).iloc[0]
         highest_upside = results.sort_values(["prob_up", "balanced_accuracy", "accuracy"], ascending=False).iloc[0]
         highest_test_up = results.sort_values(["test_positive_rate", "balanced_accuracy", "accuracy"], ascending=False).iloc[0]
+        biggest_bullish_shift = results.sort_values(["up_rate_delta", "balanced_accuracy", "accuracy"], ascending=False).iloc[0]
+        biggest_bearish_shift = results.sort_values(["up_rate_delta", "balanced_accuracy", "accuracy"], ascending=True).iloc[0]
         sell_results = results.loc[results["signal"].eq("SELL")]
         best_conviction = results.iloc[0]
         md_lines.extend(
@@ -70,6 +73,16 @@ def render_results_markdown(results: pd.DataFrame) -> str:
                 (
                     f"- Most upside-heavy test window: **{highest_test_up['ticker']}** "
                     f"(`test_up_rate` {highest_test_up['test_positive_rate']:.3f}, balanced accuracy {highest_test_up['balanced_accuracy']:.3f})."
+                ),
+                (
+                    f"- Largest bullish label regime shift: **{biggest_bullish_shift['ticker']}** "
+                    f"(`up_rate_delta` {biggest_bullish_shift['up_rate_delta']:+.3f}, "
+                    f"test {biggest_bullish_shift['test_positive_rate']:.3f} vs train {biggest_bullish_shift['train_positive_rate']:.3f})."
+                ),
+                (
+                    f"- Largest bearish label regime shift: **{biggest_bearish_shift['ticker']}** "
+                    f"(`up_rate_delta` {biggest_bearish_shift['up_rate_delta']:+.3f}, "
+                    f"test {biggest_bearish_shift['test_positive_rate']:.3f} vs train {biggest_bearish_shift['train_positive_rate']:.3f})."
                 ),
                 (
                     f"- Highest upside probability: **{highest_upside['ticker']}** "
@@ -99,13 +112,13 @@ def render_results_markdown(results: pd.DataFrame) -> str:
 
     md_lines.extend(
         [
-            "| Ticker | As Of | Last Close | Train Rows | Test Rows | Train Up Rate | Test Up Rate | Accuracy | Balanced Accuracy | Signal | Prob Up | Signal Confidence | Conviction Score |",
-            "|---|---|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|---:|",
+            "| Ticker | As Of | Last Close | Train Rows | Test Rows | Train Up Rate | Test Up Rate | Up Rate Delta | Accuracy | Balanced Accuracy | Signal | Prob Up | Signal Confidence | Conviction Score |",
+            "|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|---:|",
         ]
     )
     for row in results.itertuples(index=False):
         md_lines.append(
-            f"| {row.ticker} | {row.latest_date} | {row.latest_close:.2f} | {row.train_rows} | {row.test_rows} | {row.train_positive_rate:.3f} | {row.test_positive_rate:.3f} | {row.accuracy:.3f} | {row.balanced_accuracy:.3f} | {row.signal} | {row.prob_up:.3f} | {row.signal_confidence:.3f} | {row.conviction_score:.3f} |"
+            f"| {row.ticker} | {row.latest_date} | {row.latest_close:.2f} | {row.train_rows} | {row.test_rows} | {row.train_positive_rate:.3f} | {row.test_positive_rate:.3f} | {row.up_rate_delta:+.3f} | {row.accuracy:.3f} | {row.balanced_accuracy:.3f} | {row.signal} | {row.prob_up:.3f} | {row.signal_confidence:.3f} | {row.conviction_score:.3f} |"
         )
     return "\n".join(md_lines) + "\n"
 
