@@ -10,6 +10,7 @@ import scripts.run_baseline as run_baseline
 class StubResult:
     accuracy: float
     balanced_accuracy: float
+    brier_score: float
     latest_signal: int
     latest_probability_up: float
     latest_close: float
@@ -25,6 +26,7 @@ STUB_RESULTS = {
     "SPY": StubResult(
         accuracy=0.61,
         balanced_accuracy=0.55,
+        brier_score=0.210,
         latest_signal=1,
         latest_probability_up=0.70,
         latest_close=500.25,
@@ -37,6 +39,7 @@ STUB_RESULTS = {
     "BOTZ": StubResult(
         accuracy=0.58,
         balanced_accuracy=0.63,
+        brier_score=0.180,
         latest_signal=0,
         latest_probability_up=0.20,
         latest_close=31.75,
@@ -49,6 +52,7 @@ STUB_RESULTS = {
     "COPX": StubResult(
         accuracy=0.67,
         balanced_accuracy=0.68,
+        brier_score=0.240,
         latest_signal=1,
         latest_probability_up=0.54,
         latest_close=42.10,
@@ -74,6 +78,7 @@ def test_build_results_frame_adds_signal_confidence_from_predicted_side():
                 "test_positive_rate": 0.58,
                 "accuracy": 0.55,
                 "balanced_accuracy": 0.60,
+                "brier_score": 0.190,
                 "signal": "BUY",
                 "prob_up": 0.70,
             },
@@ -87,6 +92,7 @@ def test_build_results_frame_adds_signal_confidence_from_predicted_side():
                 "test_positive_rate": 0.30,
                 "accuracy": 0.58,
                 "balanced_accuracy": 0.62,
+                "brier_score": 0.160,
                 "signal": "SELL",
                 "prob_up": 0.20,
             },
@@ -125,7 +131,7 @@ def test_baseline_results_include_ranked_conviction_columns_and_highlights(monke
     latest_predictions = pd.read_csv(reports_dir / "latest_predictions.csv")
 
     assert (
-        "| Ticker | As Of | Last Close | Train Rows | Test Rows | Train Up Rate | Test Up Rate | Up Rate Delta | Accuracy | Balanced Accuracy | Signal | Prob Up | Signal Confidence | Conviction Score |"
+        "| Ticker | As Of | Last Close | Train Rows | Test Rows | Train Up Rate | Test Up Rate | Up Rate Delta | Accuracy | Balanced Accuracy | Brier Score | Signal | Prob Up | Signal Confidence | Conviction Score |"
         in results
     )
     assert "## Highlights" in results
@@ -133,6 +139,7 @@ def test_baseline_results_include_ranked_conviction_columns_and_highlights(monke
     assert "Largest bullish label regime shift: **BOTZ**" in results
     assert "Largest bearish label regime shift: **COPX**" in results
     assert "Highest downside probability: **BOTZ**" in results
+    assert "Best calibrated test probabilities: **BOTZ**" in results
     assert "Best conviction-adjusted signal: **BOTZ**" in results
     assert latest_predictions.columns.tolist() == [
         "ticker",
@@ -144,6 +151,7 @@ def test_baseline_results_include_ranked_conviction_columns_and_highlights(monke
         "test_positive_rate",
         "accuracy",
         "balanced_accuracy",
+        "brier_score",
         "signal",
         "prob_up",
         "up_rate_delta",
@@ -154,6 +162,7 @@ def test_baseline_results_include_ranked_conviction_columns_and_highlights(monke
     assert latest_predictions["ticker"].tolist() == ["BOTZ", "SPY", "COPX"]
     assert latest_predictions.loc[0, "conviction_score"] > latest_predictions.loc[1, "conviction_score"]
     assert latest_predictions.loc[0, "signal_confidence"] == 0.8
+    assert latest_predictions.loc[0, "brier_score"] == pytest.approx(0.18)
     assert latest_predictions.loc[0, "up_rate_delta"] == pytest.approx(-0.05)
     assert latest_predictions.loc[0, "latest_date"] == "2026-04-08"
     assert latest_predictions.loc[0, "latest_close"] == pytest.approx(31.75)
@@ -161,5 +170,5 @@ def test_baseline_results_include_ranked_conviction_columns_and_highlights(monke
     assert latest_predictions.loc[0, "test_rows"] == 20
     assert latest_predictions.loc[0, "train_positive_rate"] == pytest.approx(0.40)
     assert latest_predictions.loc[0, "test_positive_rate"] == pytest.approx(0.35)
-    assert "| BOTZ | 2026-04-08 | 31.75 | 80 | 20 | 0.400 | 0.350 | -0.050 | 0.580 | 0.630 | SELL | 0.200 | 0.800 | 0.189 |" in results
+    assert "| BOTZ | 2026-04-08 | 31.75 | 80 | 20 | 0.400 | 0.350 | -0.050 | 0.580 | 0.630 | 0.180 | SELL | 0.200 | 0.800 | 0.189 |" in results
     assert results.index("| BOTZ |") < results.index("| SPY |") < results.index("| COPX |")

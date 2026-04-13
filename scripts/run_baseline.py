@@ -24,6 +24,7 @@ RESULTS_COLUMNS = [
     "test_positive_rate",
     "accuracy",
     "balanced_accuracy",
+    "brier_score",
     "signal",
     "prob_up",
 ]
@@ -56,6 +57,7 @@ def render_results_markdown(results: pd.DataFrame) -> str:
 
     if not results.empty:
         strongest_fit = results.sort_values(["balanced_accuracy", "accuracy"], ascending=False).iloc[0]
+        best_calibrated = results.sort_values(["brier_score", "balanced_accuracy", "accuracy"], ascending=[True, False, False]).iloc[0]
         highest_upside = results.sort_values(["prob_up", "balanced_accuracy", "accuracy"], ascending=False).iloc[0]
         highest_test_up = results.sort_values(["test_positive_rate", "balanced_accuracy", "accuracy"], ascending=False).iloc[0]
         biggest_bullish_shift = results.sort_values(["up_rate_delta", "balanced_accuracy", "accuracy"], ascending=False).iloc[0]
@@ -88,6 +90,10 @@ def render_results_markdown(results: pd.DataFrame) -> str:
                     f"- Highest upside probability: **{highest_upside['ticker']}** "
                     f"(`prob_up` {highest_upside['prob_up']:.3f}, balanced accuracy {highest_upside['balanced_accuracy']:.3f})."
                 ),
+                (
+                    f"- Best calibrated test probabilities: **{best_calibrated['ticker']}** "
+                    f"(`brier_score` {best_calibrated['brier_score']:.3f}, balanced accuracy {best_calibrated['balanced_accuracy']:.3f})."
+                ),
             ]
         )
         if not sell_results.empty:
@@ -112,13 +118,13 @@ def render_results_markdown(results: pd.DataFrame) -> str:
 
     md_lines.extend(
         [
-            "| Ticker | As Of | Last Close | Train Rows | Test Rows | Train Up Rate | Test Up Rate | Up Rate Delta | Accuracy | Balanced Accuracy | Signal | Prob Up | Signal Confidence | Conviction Score |",
-            "|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|---:|",
+            "| Ticker | As Of | Last Close | Train Rows | Test Rows | Train Up Rate | Test Up Rate | Up Rate Delta | Accuracy | Balanced Accuracy | Brier Score | Signal | Prob Up | Signal Confidence | Conviction Score |",
+            "|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|---:|",
         ]
     )
     for row in results.itertuples(index=False):
         md_lines.append(
-            f"| {row.ticker} | {row.latest_date} | {row.latest_close:.2f} | {row.train_rows} | {row.test_rows} | {row.train_positive_rate:.3f} | {row.test_positive_rate:.3f} | {row.up_rate_delta:+.3f} | {row.accuracy:.3f} | {row.balanced_accuracy:.3f} | {row.signal} | {row.prob_up:.3f} | {row.signal_confidence:.3f} | {row.conviction_score:.3f} |"
+            f"| {row.ticker} | {row.latest_date} | {row.latest_close:.2f} | {row.train_rows} | {row.test_rows} | {row.train_positive_rate:.3f} | {row.test_positive_rate:.3f} | {row.up_rate_delta:+.3f} | {row.accuracy:.3f} | {row.balanced_accuracy:.3f} | {row.brier_score:.3f} | {row.signal} | {row.prob_up:.3f} | {row.signal_confidence:.3f} | {row.conviction_score:.3f} |"
         )
     return "\n".join(md_lines) + "\n"
 
@@ -145,6 +151,7 @@ def main() -> None:
                 "test_positive_rate": result.test_positive_rate,
                 "accuracy": result.accuracy,
                 "balanced_accuracy": result.balanced_accuracy,
+                "brier_score": result.brier_score,
                 "signal": signal,
                 "prob_up": result.latest_probability_up,
             }

@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score, balanced_accuracy_score, classification_report
+from sklearn.metrics import accuracy_score, balanced_accuracy_score, brier_score_loss, classification_report
 
 from .config import FORWARD_DAYS, RANDOM_STATE, TRAIN_TEST_SPLIT
 from .features import add_features
@@ -26,6 +26,7 @@ class ModelResult:
     ticker: str
     accuracy: float
     balanced_accuracy: float
+    brier_score: float
     report: str
     latest_signal: int
     latest_probability_up: float
@@ -75,6 +76,10 @@ def compute_positive_rate(labels: pd.Series) -> float:
     return float(labels.mean()) if len(labels) else 0.0
 
 
+def compute_probability_metrics(y_true: pd.Series, y_prob: pd.Series) -> dict[str, float]:
+    return {"brier_score": float(brier_score_loss(y_true, y_prob))}
+
+
 def train_for_ticker(ticker: str, df: pd.DataFrame) -> ModelResult:
     feature_frame = prepare_feature_frame(df)
     ds = prepare_dataset(df)
@@ -96,7 +101,10 @@ def train_for_ticker(ticker: str, df: pd.DataFrame) -> ModelResult:
     model.fit(X_train, y_train)
     preds = model.predict(X_test)
     probs = model.predict_proba(X_test)[:, 1]
-    metrics = compute_classification_metrics(y_test, preds)
+    metrics = {
+        **compute_classification_metrics(y_test, preds),
+        **compute_probability_metrics(y_test, probs),
+    }
     report = classification_report(y_test, preds, digits=3)
 
     latest_row = feature_frame.iloc[-1]
@@ -110,6 +118,7 @@ def train_for_ticker(ticker: str, df: pd.DataFrame) -> ModelResult:
         ticker=ticker,
         accuracy=metrics["accuracy"],
         balanced_accuracy=metrics["balanced_accuracy"],
+        brier_score=metrics["brier_score"],
         report=report,
         latest_signal=latest_signal,
         latest_probability_up=latest_probability_up,

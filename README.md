@@ -55,4 +55,5 @@ uv run --with pytest python -m pytest tests -q
 - The ranked baseline outputs now include `train_positive_rate` and `test_positive_rate`, which show the share of forward-up labels in each split; this makes it easier to spot when a ticker's recent evaluation window was unusually bullish or bearish and to interpret balanced accuracy in that context.
 - The baseline report/CSV also derive `up_rate_delta = test_positive_rate - train_positive_rate`, surfacing which tickers are seeing the biggest bullish or bearish label-regime shift versus their training history.
 - The baseline watchlist now surfaces each signal's `latest_date` and `latest_close`, making the markdown/CSV output easier to audit against the exact market snapshot that generated the live BUY/SELL call.
+- Baseline outputs now also include out-of-sample `brier_score`, so the markdown/CSV can show which tickers had the most calibrated test-set probabilities in addition to directional accuracy.
 - This is a starter pipeline and should be extended with scoring, deduplication, sentiment, and portfolio relevance ranking.

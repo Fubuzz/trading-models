@@ -1,9 +1,11 @@
 import numpy as np
 import pandas as pd
+import pytest
 
 from trading_models.config import FORWARD_DAYS, TRAIN_TEST_SPLIT
 from trading_models.model import (
     compute_classification_metrics,
+    compute_probability_metrics,
     prepare_dataset,
     prepare_feature_frame,
     train_for_ticker,
@@ -19,6 +21,16 @@ def test_compute_classification_metrics_includes_balanced_accuracy_for_imbalance
 
     assert metrics["accuracy"] == 5 / 6
     assert metrics["balanced_accuracy"] == 0.75
+
+
+
+def test_compute_probability_metrics_includes_brier_score_for_test_probabilities():
+    y_true = [0, 1, 1, 0]
+    y_prob = [0.10, 0.80, 0.60, 0.30]
+
+    metrics = compute_probability_metrics(y_true, y_prob)
+
+    assert metrics["brier_score"] == pytest.approx(0.075)
 
 
 
@@ -55,5 +67,6 @@ def test_train_for_ticker_reports_train_and_test_row_counts():
     assert result.test_rows > 0
     assert result.train_positive_rate == dataset["target"].iloc[:split_idx].mean()
     assert result.test_positive_rate == dataset["target"].iloc[split_idx:].mean()
+    assert 0.0 <= result.brier_score <= 1.0
     assert result.latest_close == close[-1]
     assert result.latest_date == dates[-1].date().isoformat()
