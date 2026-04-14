@@ -40,6 +40,10 @@ def build_results_frame(rows: list[dict[str, float | str]]) -> pd.DataFrame:
     sell_mask = results["signal"].eq("SELL")
     results.loc[sell_mask, "signal_confidence"] = 1 - results.loc[sell_mask, "prob_up"]
     results["signal_edge"] = results["signal_confidence"] - 0.5
+    results["regime_edge"] = results["signal_confidence"] - results["test_positive_rate"]
+    results.loc[sell_mask, "regime_edge"] = results.loc[sell_mask, "signal_confidence"] - (
+        1 - results.loc[sell_mask, "test_positive_rate"]
+    )
     results["conviction_score"] = results["balanced_accuracy"] * results["signal_edge"]
     return results.sort_values(
         ["conviction_score", "balanced_accuracy", "signal_confidence", "accuracy"],
@@ -62,6 +66,7 @@ def render_results_markdown(results: pd.DataFrame) -> str:
         highest_test_up = results.sort_values(["test_positive_rate", "balanced_accuracy", "accuracy"], ascending=False).iloc[0]
         biggest_bullish_shift = results.sort_values(["up_rate_delta", "balanced_accuracy", "accuracy"], ascending=False).iloc[0]
         biggest_bearish_shift = results.sort_values(["up_rate_delta", "balanced_accuracy", "accuracy"], ascending=True).iloc[0]
+        best_regime_edge = results.sort_values(["regime_edge", "balanced_accuracy", "accuracy"], ascending=False).iloc[0]
         sell_results = results.loc[results["signal"].eq("SELL")]
         best_conviction = results.iloc[0]
         md_lines.extend(
@@ -94,6 +99,11 @@ def render_results_markdown(results: pd.DataFrame) -> str:
                     f"- Best calibrated test probabilities: **{best_calibrated['ticker']}** "
                     f"(`brier_score` {best_calibrated['brier_score']:.3f}, balanced accuracy {best_calibrated['balanced_accuracy']:.3f})."
                 ),
+                (
+                    f"- Largest live edge vs recent regime: **{best_regime_edge['ticker']}** "
+                    f"(`regime_edge` {best_regime_edge['regime_edge']:+.3f}, signal {best_regime_edge['signal']}, "
+                    f"test up-rate {best_regime_edge['test_positive_rate']:.3f})."
+                ),
             ]
         )
         if not sell_results.empty:
@@ -118,13 +128,13 @@ def render_results_markdown(results: pd.DataFrame) -> str:
 
     md_lines.extend(
         [
-            "| Ticker | As Of | Last Close | Train Rows | Test Rows | Train Up Rate | Test Up Rate | Up Rate Delta | Accuracy | Balanced Accuracy | Brier Score | Signal | Prob Up | Signal Confidence | Conviction Score |",
-            "|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|---:|",
+            "| Ticker | As Of | Last Close | Train Rows | Test Rows | Train Up Rate | Test Up Rate | Up Rate Delta | Accuracy | Balanced Accuracy | Brier Score | Signal | Prob Up | Signal Confidence | Regime Edge | Conviction Score |",
+            "|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|---:|---:|",
         ]
     )
     for row in results.itertuples(index=False):
         md_lines.append(
-            f"| {row.ticker} | {row.latest_date} | {row.latest_close:.2f} | {row.train_rows} | {row.test_rows} | {row.train_positive_rate:.3f} | {row.test_positive_rate:.3f} | {row.up_rate_delta:+.3f} | {row.accuracy:.3f} | {row.balanced_accuracy:.3f} | {row.brier_score:.3f} | {row.signal} | {row.prob_up:.3f} | {row.signal_confidence:.3f} | {row.conviction_score:.3f} |"
+            f"| {row.ticker} | {row.latest_date} | {row.latest_close:.2f} | {row.train_rows} | {row.test_rows} | {row.train_positive_rate:.3f} | {row.test_positive_rate:.3f} | {row.up_rate_delta:+.3f} | {row.accuracy:.3f} | {row.balanced_accuracy:.3f} | {row.brier_score:.3f} | {row.signal} | {row.prob_up:.3f} | {row.signal_confidence:.3f} | {row.regime_edge:+.3f} | {row.conviction_score:.3f} |"
         )
     return "\n".join(md_lines) + "\n"
 

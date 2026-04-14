@@ -104,9 +104,11 @@ def test_build_results_frame_adds_signal_confidence_from_predicted_side():
     assert by_ticker.loc["BUYME", "up_rate_delta"] == pytest.approx(-0.06)
     assert by_ticker.loc["BUYME", "signal_confidence"] == pytest.approx(0.70)
     assert by_ticker.loc["BUYME", "signal_edge"] == pytest.approx(0.20)
+    assert by_ticker.loc["BUYME", "regime_edge"] == pytest.approx(0.12)
     assert by_ticker.loc["SELLME", "up_rate_delta"] == pytest.approx(-0.12)
     assert by_ticker.loc["SELLME", "signal_confidence"] == pytest.approx(0.80)
     assert by_ticker.loc["SELLME", "signal_edge"] == pytest.approx(0.30)
+    assert by_ticker.loc["SELLME", "regime_edge"] == pytest.approx(0.10)
 
 
 def test_baseline_results_include_ranked_conviction_columns_and_highlights(monkeypatch, tmp_path):
@@ -131,7 +133,7 @@ def test_baseline_results_include_ranked_conviction_columns_and_highlights(monke
     latest_predictions = pd.read_csv(reports_dir / "latest_predictions.csv")
 
     assert (
-        "| Ticker | As Of | Last Close | Train Rows | Test Rows | Train Up Rate | Test Up Rate | Up Rate Delta | Accuracy | Balanced Accuracy | Brier Score | Signal | Prob Up | Signal Confidence | Conviction Score |"
+        "| Ticker | As Of | Last Close | Train Rows | Test Rows | Train Up Rate | Test Up Rate | Up Rate Delta | Accuracy | Balanced Accuracy | Brier Score | Signal | Prob Up | Signal Confidence | Regime Edge | Conviction Score |"
         in results
     )
     assert "## Highlights" in results
@@ -140,6 +142,7 @@ def test_baseline_results_include_ranked_conviction_columns_and_highlights(monke
     assert "Largest bearish label regime shift: **COPX**" in results
     assert "Highest downside probability: **BOTZ**" in results
     assert "Best calibrated test probabilities: **BOTZ**" in results
+    assert "Largest live edge vs recent regime: **SPY**" in results
     assert "Best conviction-adjusted signal: **BOTZ**" in results
     assert latest_predictions.columns.tolist() == [
         "ticker",
@@ -157,6 +160,7 @@ def test_baseline_results_include_ranked_conviction_columns_and_highlights(monke
         "up_rate_delta",
         "signal_confidence",
         "signal_edge",
+        "regime_edge",
         "conviction_score",
     ]
     assert latest_predictions["ticker"].tolist() == ["BOTZ", "SPY", "COPX"]
@@ -164,11 +168,12 @@ def test_baseline_results_include_ranked_conviction_columns_and_highlights(monke
     assert latest_predictions.loc[0, "signal_confidence"] == 0.8
     assert latest_predictions.loc[0, "brier_score"] == pytest.approx(0.18)
     assert latest_predictions.loc[0, "up_rate_delta"] == pytest.approx(-0.05)
+    assert latest_predictions.loc[0, "regime_edge"] == pytest.approx(0.15)
     assert latest_predictions.loc[0, "latest_date"] == "2026-04-08"
     assert latest_predictions.loc[0, "latest_close"] == pytest.approx(31.75)
     assert latest_predictions.loc[0, "train_rows"] == 80
     assert latest_predictions.loc[0, "test_rows"] == 20
     assert latest_predictions.loc[0, "train_positive_rate"] == pytest.approx(0.40)
     assert latest_predictions.loc[0, "test_positive_rate"] == pytest.approx(0.35)
-    assert "| BOTZ | 2026-04-08 | 31.75 | 80 | 20 | 0.400 | 0.350 | -0.050 | 0.580 | 0.630 | 0.180 | SELL | 0.200 | 0.800 | 0.189 |" in results
+    assert "| BOTZ | 2026-04-08 | 31.75 | 80 | 20 | 0.400 | 0.350 | -0.050 | 0.580 | 0.630 | 0.180 | SELL | 0.200 | 0.800 | +0.150 | 0.189 |" in results
     assert results.index("| BOTZ |") < results.index("| SPY |") < results.index("| COPX |")
