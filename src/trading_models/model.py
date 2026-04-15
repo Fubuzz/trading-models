@@ -16,6 +16,8 @@ FEATURE_COLUMNS = [
     "price_vs_ma10",
     "price_vs_ma20",
     "price_vs_ma50",
+    "ma_10_vs_ma20",
+    "ma_20_vs_ma50",
     "vol_20d",
     "rsi_14",
 ]

@@ -57,4 +57,5 @@ uv run --with pytest python -m pytest tests -q
 - The ranked baseline outputs now also include `regime_edge`, which measures how far the live BUY/SELL confidence sits above the recent test-window base rate of the predicted side; this helps distinguish genuinely differentiated signals from probabilities that mostly echo a bullish or bearish regime.
 - The baseline watchlist now surfaces each signal's `latest_date` and `latest_close`, making the markdown/CSV output easier to audit against the exact market snapshot that generated the live BUY/SELL call.
 - Baseline outputs now also include out-of-sample `brier_score`, so the markdown/CSV can show which tickers had the most calibrated test-set probabilities in addition to directional accuracy.
+- The baseline feature set now also includes short/medium and medium/long moving-average spread features (`ma_10_vs_ma20`, `ma_20_vs_ma50`) so the model can distinguish trend alignment from simple price-vs-average distance without reducing the usable sample history.
 - This is a starter pipeline and should be extended with scoring, deduplication, sentiment, and portfolio relevance ranking.
