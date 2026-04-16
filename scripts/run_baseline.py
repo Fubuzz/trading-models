@@ -40,11 +40,12 @@ def build_results_frame(rows: list[dict[str, float | str]]) -> pd.DataFrame:
     sell_mask = results["signal"].eq("SELL")
     results.loc[sell_mask, "signal_confidence"] = 1 - results.loc[sell_mask, "prob_up"]
     results["signal_edge"] = results["signal_confidence"] - 0.5
+    results["balanced_accuracy_edge"] = results["balanced_accuracy"] - 0.5
     results["regime_edge"] = results["signal_confidence"] - results["test_positive_rate"]
     results.loc[sell_mask, "regime_edge"] = results.loc[sell_mask, "signal_confidence"] - (
         1 - results.loc[sell_mask, "test_positive_rate"]
     )
-    results["conviction_score"] = results["balanced_accuracy"] * results["signal_edge"]
+    results["conviction_score"] = results["balanced_accuracy_edge"] * results["signal_edge"]
     return results.sort_values(
         ["conviction_score", "balanced_accuracy", "signal_confidence", "accuracy"],
         ascending=False,
@@ -120,6 +121,7 @@ def render_results_markdown(results: pd.DataFrame) -> str:
                 (
                     f"- Best conviction-adjusted signal: **{best_conviction['ticker']}** "
                     f"(conviction score {best_conviction['conviction_score']:.3f}, "
+                    f"balanced-accuracy edge {best_conviction['balanced_accuracy_edge']:+.3f}, "
                     f"signal {best_conviction['signal']}, confidence {best_conviction['signal_confidence']:.3f})."
                 ),
                 "",
@@ -128,13 +130,13 @@ def render_results_markdown(results: pd.DataFrame) -> str:
 
     md_lines.extend(
         [
-            "| Ticker | As Of | Last Close | Train Rows | Test Rows | Train Up Rate | Test Up Rate | Up Rate Delta | Accuracy | Balanced Accuracy | Brier Score | Signal | Prob Up | Signal Confidence | Regime Edge | Conviction Score |",
-            "|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|---:|---:|",
+            "| Ticker | As Of | Last Close | Train Rows | Test Rows | Train Up Rate | Test Up Rate | Up Rate Delta | Accuracy | Balanced Accuracy | Balanced Acc Edge | Brier Score | Signal | Prob Up | Signal Confidence | Regime Edge | Conviction Score |",
+            "|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|---:|---:|",
         ]
     )
     for row in results.itertuples(index=False):
         md_lines.append(
-            f"| {row.ticker} | {row.latest_date} | {row.latest_close:.2f} | {row.train_rows} | {row.test_rows} | {row.train_positive_rate:.3f} | {row.test_positive_rate:.3f} | {row.up_rate_delta:+.3f} | {row.accuracy:.3f} | {row.balanced_accuracy:.3f} | {row.brier_score:.3f} | {row.signal} | {row.prob_up:.3f} | {row.signal_confidence:.3f} | {row.regime_edge:+.3f} | {row.conviction_score:.3f} |"
+            f"| {row.ticker} | {row.latest_date} | {row.latest_close:.2f} | {row.train_rows} | {row.test_rows} | {row.train_positive_rate:.3f} | {row.test_positive_rate:.3f} | {row.up_rate_delta:+.3f} | {row.accuracy:.3f} | {row.balanced_accuracy:.3f} | {row.balanced_accuracy_edge:+.3f} | {row.brier_score:.3f} | {row.signal} | {row.prob_up:.3f} | {row.signal_confidence:.3f} | {row.regime_edge:+.3f} | {row.conviction_score:.3f} |"
         )
     return "\n".join(md_lines) + "\n"
 
