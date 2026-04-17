@@ -32,3 +32,21 @@ def test_add_features_includes_moving_average_spreads_without_extra_warmup():
     assert last_row["ma_20_vs_ma50"] == pytest.approx(last_row["ma_20"] / last_row["ma_50"] - 1)
     assert features["ma_10_vs_ma20"].first_valid_index() == features["price_vs_ma20"].first_valid_index()
     assert features["ma_20_vs_ma50"].first_valid_index() == features["price_vs_ma50"].first_valid_index()
+
+
+def test_add_features_includes_20d_range_position_without_extra_warmup():
+    df = pd.DataFrame({"Close": range(1, 81)})
+
+    features = add_features(df)
+    last_row = features.iloc[-1]
+
+    assert last_row["range_position_20"] == pytest.approx(1.0)
+    assert features["range_position_20"].first_valid_index() == features["price_vs_ma20"].first_valid_index()
+
+
+def test_add_features_treats_flat_20d_range_as_neutral_position():
+    df = pd.DataFrame({"Close": [5.0] * 30})
+
+    features = add_features(df)
+
+    assert features["range_position_20"].iloc[-1] == pytest.approx(0.5)

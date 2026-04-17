@@ -58,4 +58,5 @@ uv run --with pytest python -m pytest tests -q
 - The baseline watchlist now surfaces each signal's `latest_date` and `latest_close`, making the markdown/CSV output easier to audit against the exact market snapshot that generated the live BUY/SELL call.
 - Baseline outputs now also include out-of-sample `brier_score`, so the markdown/CSV can show which tickers had the most calibrated test-set probabilities in addition to directional accuracy.
 - The baseline feature set now also includes short/medium and medium/long moving-average spread features (`ma_10_vs_ma20`, `ma_20_vs_ma50`) so the model can distinguish trend alignment from simple price-vs-average distance without reducing the usable sample history.
+- The feature set now also includes `range_position_20`, which places the latest close within its rolling 20-day high/low range (with flat ranges treated as neutral at `0.5`) so the model can distinguish breakouts from pullbacks without adding more warmup than the existing 20-day windows.
 - This is a starter pipeline and should be extended with scoring, deduplication, sentiment, and portfolio relevance ranking.

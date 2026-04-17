@@ -30,11 +30,16 @@ def add_features(df: pd.DataFrame) -> pd.DataFrame:
     out["ma_10"] = out["Close"].rolling(10).mean()
     out["ma_20"] = out["Close"].rolling(20).mean()
     out["ma_50"] = out["Close"].rolling(50).mean()
+    out["range_high_20"] = out["Close"].rolling(20).max()
+    out["range_low_20"] = out["Close"].rolling(20).min()
     out["price_vs_ma10"] = out["Close"] / out["ma_10"] - 1
     out["price_vs_ma20"] = out["Close"] / out["ma_20"] - 1
     out["price_vs_ma50"] = out["Close"] / out["ma_50"] - 1
     out["ma_10_vs_ma20"] = out["ma_10"] / out["ma_20"] - 1
     out["ma_20_vs_ma50"] = out["ma_20"] / out["ma_50"] - 1
+    range_width_20 = out["range_high_20"] - out["range_low_20"]
+    out["range_position_20"] = (out["Close"] - out["range_low_20"]) / range_width_20.replace(0, np.nan)
+    out["range_position_20"] = out["range_position_20"].mask(range_width_20.eq(0), 0.5)
     out["vol_20d"] = out["Close"].pct_change().rolling(20).std()
     out["rsi_14"] = compute_rsi(out["Close"], 14)
     return out
