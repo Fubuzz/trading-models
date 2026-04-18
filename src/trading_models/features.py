@@ -40,6 +40,10 @@ def add_features(df: pd.DataFrame) -> pd.DataFrame:
     range_width_20 = out["range_high_20"] - out["range_low_20"]
     out["range_position_20"] = (out["Close"] - out["range_low_20"]) / range_width_20.replace(0, np.nan)
     out["range_position_20"] = out["range_position_20"].mask(range_width_20.eq(0), 0.5)
-    out["vol_20d"] = out["Close"].pct_change().rolling(20).std()
+    daily_returns = out["Close"].pct_change()
+    out["vol_5d"] = daily_returns.rolling(5).std()
+    out["vol_20d"] = daily_returns.rolling(20).std()
+    out["vol_ratio_5d_20d"] = out["vol_5d"] / out["vol_20d"].replace(0, np.nan)
+    out["vol_ratio_5d_20d"] = out["vol_ratio_5d_20d"].mask(out["vol_20d"].eq(0), 1.0)
     out["rsi_14"] = compute_rsi(out["Close"], 14)
     return out
