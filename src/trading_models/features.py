@@ -27,6 +27,7 @@ def add_features(df: pd.DataFrame) -> pd.DataFrame:
     out["ret_1d"] = out["Close"].pct_change(1)
     out["ret_5d"] = out["Close"].pct_change(5)
     out["ret_20d"] = out["Close"].pct_change(20)
+    out["ret_5d_minus_ret_20d"] = out["ret_5d"] - out["ret_20d"]
     out["ma_10"] = out["Close"].rolling(10).mean()
     out["ma_20"] = out["Close"].rolling(20).mean()
     out["ma_50"] = out["Close"].rolling(50).mean()
