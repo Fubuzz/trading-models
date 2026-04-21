@@ -51,6 +51,25 @@ def test_add_features_treats_flat_20d_vol_adjusted_return_as_neutral_zero():
     assert features["ret_20d_per_vol_20d"].iloc[-1] == pytest.approx(0.0)
 
 
+def test_add_features_includes_vol_adjusted_5d_return_without_extra_warmup():
+    close = [100.0] * 30 + [105.0, 95.0, 110.0, 90.0, 115.0, 92.0, 118.0, 94.0, 120.0, 96.0]
+    df = pd.DataFrame({"Close": close})
+
+    features = add_features(df)
+    last_row = features.iloc[-1]
+
+    assert last_row["ret_5d_per_vol_5d"] == pytest.approx(last_row["ret_5d"] / last_row["vol_5d"])
+    assert features["ret_5d_per_vol_5d"].first_valid_index() == features["vol_5d"].first_valid_index()
+
+
+def test_add_features_treats_flat_5d_vol_adjusted_return_as_neutral_zero():
+    df = pd.DataFrame({"Close": [5.0] * 30})
+
+    features = add_features(df)
+
+    assert features["ret_5d_per_vol_5d"].iloc[-1] == pytest.approx(0.0)
+
+
 def test_add_features_includes_moving_average_spreads_without_extra_warmup():
     df = pd.DataFrame({"Close": range(1, 81)})
 

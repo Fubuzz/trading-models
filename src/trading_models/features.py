@@ -44,6 +44,8 @@ def add_features(df: pd.DataFrame) -> pd.DataFrame:
     daily_returns = out["Close"].pct_change()
     out["vol_5d"] = daily_returns.rolling(5).std()
     out["vol_20d"] = daily_returns.rolling(20).std()
+    out["ret_5d_per_vol_5d"] = out["ret_5d"] / out["vol_5d"].replace(0, np.nan)
+    out["ret_5d_per_vol_5d"] = out["ret_5d_per_vol_5d"].mask(out["vol_5d"].eq(0), 0.0)
     out["ret_20d_per_vol_20d"] = out["ret_20d"] / out["vol_20d"].replace(0, np.nan)
     out["ret_20d_per_vol_20d"] = out["ret_20d_per_vol_20d"].mask(out["vol_20d"].eq(0), 0.0)
     out["vol_ratio_5d_20d"] = out["vol_5d"] / out["vol_20d"].replace(0, np.nan)

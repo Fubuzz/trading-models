@@ -14,6 +14,7 @@ FEATURE_COLUMNS = [
     "ret_5d",
     "ret_20d",
     "ret_5d_minus_ret_20d",
+    "ret_5d_per_vol_5d",
     "ret_20d_per_vol_20d",
     "price_vs_ma10",
     "price_vs_ma20",
