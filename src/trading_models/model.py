@@ -22,6 +22,7 @@ FEATURE_COLUMNS = [
     "ma_10_vs_ma20",
     "ma_20_vs_ma50",
     "range_position_20",
+    "drawdown_from_high_20",
     "vol_20d",
     "vol_ratio_5d_20d",
     "rsi_14",
