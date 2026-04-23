@@ -82,6 +82,24 @@ def test_add_features_includes_moving_average_spreads_without_extra_warmup():
     assert features["ma_20_vs_ma50"].first_valid_index() == features["price_vs_ma50"].first_valid_index()
 
 
+def test_add_features_includes_20d_moving_average_slope_without_extra_warmup():
+    df = pd.DataFrame({"Close": range(1, 81)})
+
+    features = add_features(df)
+    last_row = features.iloc[-1]
+
+    assert last_row["ma_20_slope_5d"] == pytest.approx(last_row["ma_20"] / features["ma_20"].shift(5).iloc[-1] - 1)
+    assert features["ma_20_slope_5d"].first_valid_index() == features["ma_20"].shift(5).first_valid_index()
+
+
+def test_add_features_treats_flat_zero_moving_average_slope_as_neutral_zero():
+    df = pd.DataFrame({"Close": [0.0] * 80})
+
+    features = add_features(df)
+
+    assert features["ma_20_slope_5d"].iloc[-1] == pytest.approx(0.0)
+
+
 def test_add_features_includes_20d_range_position_without_extra_warmup():
     df = pd.DataFrame({"Close": range(1, 81)})
 

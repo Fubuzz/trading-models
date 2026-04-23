@@ -39,6 +39,8 @@ def add_features(df: pd.DataFrame) -> pd.DataFrame:
     out["price_vs_ma50"] = out["Close"] / out["ma_50"] - 1
     out["ma_10_vs_ma20"] = out["ma_10"] / out["ma_20"] - 1
     out["ma_20_vs_ma50"] = out["ma_20"] / out["ma_50"] - 1
+    out["ma_20_slope_5d"] = out["ma_20"] / out["ma_20"].shift(5).replace(0, np.nan) - 1
+    out["ma_20_slope_5d"] = out["ma_20_slope_5d"].mask(out["ma_20"].shift(5).eq(0), 0.0)
     range_width_20 = out["range_high_20"] - out["range_low_20"]
     out["range_position_20"] = (out["Close"] - out["range_low_20"]) / range_width_20.replace(0, np.nan)
     out["range_position_20"] = out["range_position_20"].mask(range_width_20.eq(0), 0.5)

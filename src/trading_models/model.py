@@ -21,6 +21,7 @@ FEATURE_COLUMNS = [
     "price_vs_ma50",
     "ma_10_vs_ma20",
     "ma_20_vs_ma50",
+    "ma_20_slope_5d",
     "range_position_20",
     "drawdown_from_high_20",
     "vol_20d",
