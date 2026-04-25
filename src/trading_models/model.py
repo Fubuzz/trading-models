@@ -20,6 +20,7 @@ FEATURE_COLUMNS = [
     "price_vs_ma20",
     "price_vs_ma50",
     "ma_10_vs_ma20",
+    "ma_10_vs_ma50",
     "ma_20_vs_ma50",
     "ma_10_slope_5d",
     "ma_20_slope_5d",
