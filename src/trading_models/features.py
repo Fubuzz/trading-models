@@ -34,6 +34,8 @@ def add_features(df: pd.DataFrame) -> pd.DataFrame:
     out["range_high_20"] = out["Close"].rolling(20).max()
     out["range_low_20"] = out["Close"].rolling(20).min()
     out["drawdown_from_high_20"] = out["Close"] / out["range_high_20"] - 1
+    out["rebound_from_low_20"] = out["Close"] / out["range_low_20"].replace(0, np.nan) - 1
+    out["rebound_from_low_20"] = out["rebound_from_low_20"].mask(out["range_low_20"].eq(0), 0.0)
     out["price_vs_ma10"] = out["Close"] / out["ma_10"] - 1
     out["price_vs_ma20"] = out["Close"] / out["ma_20"] - 1
     out["price_vs_ma50"] = out["Close"] / out["ma_50"] - 1
