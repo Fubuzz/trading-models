@@ -27,6 +27,7 @@ FEATURE_COLUMNS = [
     "range_position_20",
     "drawdown_from_high_20",
     "rebound_from_low_20",
+    "range_width_pct_20",
     "vol_20d",
     "vol_ratio_5d_20d",
     "rsi_14",
