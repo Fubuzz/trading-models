@@ -61,4 +61,5 @@ def add_features(df: pd.DataFrame) -> pd.DataFrame:
     out["vol_ratio_5d_20d"] = out["vol_5d"] / out["vol_20d"].replace(0, np.nan)
     out["vol_ratio_5d_20d"] = out["vol_ratio_5d_20d"].mask(out["vol_20d"].eq(0), 1.0)
     out["rsi_14"] = compute_rsi(out["Close"], 14)
+    out["rsi_14_change_5d"] = out["rsi_14"] - out["rsi_14"].shift(5)
     return out

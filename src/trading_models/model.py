@@ -31,6 +31,7 @@ FEATURE_COLUMNS = [
     "vol_20d",
     "vol_ratio_5d_20d",
     "rsi_14",
+    "rsi_14_change_5d",
 ]
 
 

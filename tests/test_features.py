@@ -187,3 +187,21 @@ def test_add_features_treats_flat_volatility_window_as_neutral_ratio():
     features = add_features(df)
 
     assert features["vol_ratio_5d_20d"].iloc[-1] == pytest.approx(1.0)
+
+
+def test_add_features_includes_5d_rsi_change_without_extra_warmup():
+    df = pd.DataFrame({"Close": range(1, 81)})
+
+    features = add_features(df)
+    last_row = features.iloc[-1]
+
+    assert last_row["rsi_14_change_5d"] == pytest.approx(last_row["rsi_14"] - features["rsi_14"].shift(5).iloc[-1])
+    assert features["rsi_14_change_5d"].first_valid_index() == features["rsi_14"].shift(5).first_valid_index()
+
+
+def test_add_features_treats_flat_rsi_change_as_neutral_zero():
+    df = pd.DataFrame({"Close": [5.0] * 30})
+
+    features = add_features(df)
+
+    assert features["rsi_14_change_5d"].iloc[-1] == pytest.approx(0.0)
