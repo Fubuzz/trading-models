@@ -22,6 +22,7 @@ FEATURE_COLUMNS = [
     "ma_10_vs_ma20",
     "ma_10_vs_ma50",
     "ma_20_vs_ma50",
+    "ma_stack_bullish_count",
     "ma_10_slope_5d",
     "ma_20_slope_5d",
     "range_position_20",

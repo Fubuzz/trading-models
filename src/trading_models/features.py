@@ -44,6 +44,14 @@ def add_features(df: pd.DataFrame) -> pd.DataFrame:
     out["ma_10_vs_ma20"] = out["ma_10"] / out["ma_20"] - 1
     out["ma_10_vs_ma50"] = out["ma_10"] / out["ma_50"] - 1
     out["ma_20_vs_ma50"] = out["ma_20"] / out["ma_50"] - 1
+    ma_stack_bullish_count = (
+        out["ma_10"].gt(out["ma_20"]).astype(float)
+        + out["ma_10"].gt(out["ma_50"]).astype(float)
+        + out["ma_20"].gt(out["ma_50"]).astype(float)
+    )
+    out["ma_stack_bullish_count"] = ma_stack_bullish_count.where(
+        out[["ma_10", "ma_20", "ma_50"]].notna().all(axis=1)
+    )
     out["ma_10_slope_5d"] = out["ma_10"] / out["ma_10"].shift(5).replace(0, np.nan) - 1
     out["ma_10_slope_5d"] = out["ma_10_slope_5d"].mask(out["ma_10"].shift(5).eq(0), 0.0)
     out["ma_20_slope_5d"] = out["ma_20"] / out["ma_20"].shift(5).replace(0, np.nan) - 1

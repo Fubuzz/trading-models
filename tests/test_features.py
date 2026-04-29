@@ -84,6 +84,24 @@ def test_add_features_includes_moving_average_spreads_without_extra_warmup():
     assert features["ma_20_vs_ma50"].first_valid_index() == features["price_vs_ma50"].first_valid_index()
 
 
+def test_add_features_includes_bullish_ma_stack_count_without_extra_warmup():
+    df = pd.DataFrame({"Close": range(1, 81)})
+
+    features = add_features(df)
+    last_row = features.iloc[-1]
+
+    assert last_row["ma_stack_bullish_count"] == pytest.approx(3.0)
+    assert features["ma_stack_bullish_count"].first_valid_index() == features["price_vs_ma50"].first_valid_index()
+
+
+def test_add_features_treats_flat_ma_stack_as_zero_alignment():
+    df = pd.DataFrame({"Close": [5.0] * 80})
+
+    features = add_features(df)
+
+    assert features["ma_stack_bullish_count"].iloc[-1] == pytest.approx(0.0)
+
+
 def test_add_features_includes_10d_moving_average_slope_without_extra_warmup():
     df = pd.DataFrame({"Close": range(1, 81)})
 
